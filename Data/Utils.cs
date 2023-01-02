@@ -45,7 +45,12 @@ public static class Utils
     
     public static string GetAppDirectoryPath()
     {
-        return "D:\\COLLEGE\\YEAR3\\APPLICATION DEV .NET\\COURSEWORK\\PROJECT\\BikeService";
+        // Get the base directory of the application
+        string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        string sourceDirectory = Directory.GetParent(baseDirectory).FullName;
+        //"BikeService1\bin\Debug\net6.0-windows10.0.19041.0\win10-x64\AppX"
+        return sourceDirectory;
+            
     }
     public static string GetAppUsersFilePath()
     {

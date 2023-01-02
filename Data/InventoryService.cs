@@ -28,7 +28,7 @@ public static class InventoryService
 
         return JsonSerializer.Deserialize<List<Inventory>>(json);
     }
-    public static List<Inventory> Create( string ItemName, int Quantity) //Guid userId,
+    public static List<Inventory> Create(Guid userId, string ItemName, int Quantity) 
     {
         List<Inventory> items = GetAll();//userId
         items.Add(new Inventory
@@ -37,7 +37,7 @@ public static class InventoryService
             Quantity=Quantity,  
            
         });
-        SaveAll(items);//userId,
+        SaveAll(items);
         return items;
     }
     
@@ -55,17 +55,7 @@ public static class InventoryService
         SaveAll(items);
         return items;
     }
-   
-/*    public static void DeleteByUserId(Guid userId)
-    {
-        string itemsFilePath = Utils.GetItemsFilePath();
-        if (File.Exists(itemsFilePath))
-        {
-            File.Delete(itemsFilePath);
-        }
-    }
-*/
-    public static List<Inventory> Update(Guid id, string ItemName, int quantitytaken) //Guid userId,bool isApproved
+       public static List<Inventory> Update(Guid id, string ItemName, int quantitytaken, bool isApproved , string TakenBy) //Guid userId,bool isApproved
     {
         List<Inventory> items = GetAll();
         Inventory itemToUpdate = items.FirstOrDefault(x => x.Id == id);
@@ -82,9 +72,9 @@ public static class InventoryService
         itemToUpdate.ItemName = ItemName;
         itemToUpdate.Quantity -= quantitytaken;
         itemToUpdate.LastTaken = DateTime.Now;
-       /* itemToUpdate.IsApproved = isApproved;
-        itemToUpdate.TakenBy = userId;
-        itemToUpdate.ApprovedBy = userId;*/
+        itemToUpdate.IsApproved = isApproved;
+        itemToUpdate.TakenBy = TakenBy;
+        itemToUpdate.ApprovedBy = userId;
         SaveAll(items);
         return items;
     }

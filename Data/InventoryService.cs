@@ -41,7 +41,7 @@ public static class InventoryService
         SaveAll(items);
         return items;
     }
-    public static List<Inventory> Delete(Guid userId , string ItemName, int quantitytaken, string TakenBy)
+    public static List<Inventory> Delete(Guid userId , string ItemName, int quantitytaken, string TakenBy , bool IsApproved)
     {  // withdraw service
         List<Inventory> items = GetAll();
         Inventory itemToRemove = items.FirstOrDefault(x => x.ItemName == ItemName);

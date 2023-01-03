@@ -1,8 +1,8 @@
 ﻿@page "/inventorymanager"
 
-<h3>inventorymanager</h3>
+<br />
 
-<ul class="nav nav-tabs">
+@*<ul class="nav nav-tabs">
     <li class="nav-item ">
         <a class='nav-link btn @(_tabFilter == "All" ? "active" : "")' @onclick='()=>TabFilter("All")'>All</a>
     </li>
@@ -12,7 +12,7 @@
     <li class="nav-item">
         <a class='nav-link btn @(_tabFilter == "Done" ? "active" : "")' @onclick='()=>TabFilter("Done")'>Approved</a>
     </li>
-</ul>
+</ul>*@
 
 <table class="table">
     <thead>
@@ -65,7 +65,7 @@
                 itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.TakenQuantity) : itemList.OrderByDescending(t =>
                 t.TakenQuantity);
             }
-                if (_tabFilter == "Due")
+           @*  if (_tabFilter == "Due")
             {
                 itemList = itemList.Where(t => !t.IsApproved);
             }
@@ -73,7 +73,7 @@
             {
                 itemList = itemList.Where(t => t.IsApproved);
             }
-
+            *@
             foreach (var Inventory in itemList)
             {
                <tr>
@@ -138,7 +138,7 @@
     private string _editItemErrorMessage { get; set; }
     
     private Inventory _itemModel { get; set; }
-    private string _tabFilter = "All";
+    //private string _tabFilter = "All";
     private string _sortBy = "withdrawl";
     private string _sortDirection = "ascending";
 
@@ -184,13 +184,13 @@
     {
         _showEditItemDialog = false;
     }
-    private void TabFilter(string status)
+    @*private void TabFilter(string status)
     {
         _tabFilter = status;
-    }
+    }*@
     private void ToggleDone(Inventory item)
     {
         item.IsApproved = !item.IsApproved;
-        _items = InventoryService.Delete(_globalState.CurrentUser.Id, item.ItemName, item.TakenQuantity, item.TakenBy);
+        _items = InventoryService.Delete(_globalState.CurrentUser.Id, item.ItemName, item.TakenQuantity, item.TakenBy, item.IsApproved);
     }
 }

@@ -32,10 +32,10 @@ public static class InventoryService
     {
         List<Inventory> items = GetAll();
         items.Add(
-            new Inventory
-        {
+            new Inventory{
             ItemName=ItemName,
-            Quantity=Quantity,  
+            Quantity=Quantity, 
+            LastTaken=null,
            
         });
         SaveAll(items);
@@ -72,7 +72,21 @@ public static class InventoryService
             throw new Exception("Stock not found.");
         }
         itemToUpdate.ItemName = ItemName;
-        itemToUpdate.Quantity += Quantity;
+        itemToUpdate.Quantity   = Quantity;
+        SaveAll(items);
+        return items;
+    }
+    public static List<Inventory> Remove(string ItemName)
+    {
+        List<Inventory> items = GetAll();
+        Inventory item = items.FirstOrDefault(x => x.ItemName == ItemName);
+
+        if (item == null)
+        {
+            throw new Exception("Item not found.");
+        }
+
+        items.Remove(item);
         SaveAll(items);
         return items;
     }

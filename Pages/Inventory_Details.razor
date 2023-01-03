@@ -2,10 +2,225 @@
 
 <h3>Inventory_Details</h3>
 
-@code {
+<nav class="navbar navbar-light bg-light justify-content-between">
+    <h1 class="navbar-brand mb-0 h1">Todos</h1>
+    <button class="btn btn-primary" type="button" @onclick="OpenAddItemDialog">
+        <span class="oi oi-plus" /> Add New Item
+    </button>
+</nav>
 
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <div class="d-flex">
+                    Items
+                    <a class='btn text-@(_sortBy == "ItemName" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
+                        @onclick='()=>SortByHandler("ItemName")'>
+                        <span class='oi oi-sort-@(_sortBy == "ItemName" ? _sortDirection : "ascending")' />
+                    </a>
+                </div>
+            </th>
+            <th>
+                <div class="d-flex">
+                    Quantity In Stock
+                    <a class='btn text-@(_sortBy == "Quantity" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
+                       @onclick='()=>SortByHandler("Quantity")'>
+                        <span class='oi oi-sort-@(_sortBy == "Quantity" ? _sortDirection : "ascending")' />
+                    </a>
+                </div>
+            </th>
+            <th>
+                <div class="d-flex">
+                    Last Taken
+                    <a class='btn text-@(_sortBy == "LastTaken" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
+                       @onclick='()=>SortByHandler("LastTaken")'>
+                        <span class='oi oi-sort-@(_sortBy == "LastTaken" ? _sortDirection : "ascending")' />
+                    </a>
+                </div>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            IEnumerable<Inventory> itemList = _items;
+            if (_sortBy == "ItemName")
+            {
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.ItemName) : itemList.OrderByDescending(t =>
+                t.ItemName);
+            }
+            else if (_sortBy == "Quantity")
+            {
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.Quantity) : itemList.OrderByDescending(t =>
+                t.Quantity);
+            }
+            else if (_sortBy == "LastTaken")
+            {
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.LastTaken) : itemList.OrderByDescending(t =>
+                t.LastTaken);
+            }
+
+            foreach (var Inventory in itemList)
+            {
+                <tr>
+                    <td>@Inventory.ItemName</td>
+                    <td>
+                        @Inventory.Quantity
+                        
+                    </td>
+                    <td>
+                        @Inventory.LastTaken
+                    </td>
+                    <td>
+                        <button class="btn btn-outline-secondary" type="button"@onclick="()=>OpenEditItemDialog(Inventory)">
+                            <span class="oi oi-pencil" /> Edit Item
+                        </button>
+                    <button class="btn btn-outline-danger" type="button" @onclick="()=>OpenDeleteItemDialog(Inventory)">
+                        <span class="oi oi-delete" /> Delete
+                    </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+    </table>
+    @if (_showEditItemDialog)
+{
+    <ModalDialog Title="@_dialogTitle" OnClose="@OnEditItemDialogClose" OkLabel="@_dialogOkLabel">
+        <div class="form-floating">
+            <input id="itemName" type="text" class="form-control" @bind="_itemModel.ItemName" placeholder="Item Name" />
+            <label for="itemName">Item Name</label>
+        </div>
+        <div class="form-floating">
+            <input id="Quantity" type="number" class="form-control" @bind="_itemModel.Quantity" placeholder="Quantity" />
+            <label for="Quantity">Quantity</label>
+        </div>
+        @if (!string.IsNullOrEmpty(_editItemErrorMessage))
+        {
+            <AlertMessage Type="danger" Message="@_editItemErrorMessage" />
+        }
+    </ModalDialog>
 }
 
+@if (_showDeleteItemDialog)
+{
+    <ModalDialog Title="Delete Item" OnClose="@OnDeleteItemDialogClose" OkLabel="Confirm">
+        <p>Are you sure you want to delete <strong>@_deleteItem.ItemName</strong> ?</p>
+        @if (!string.IsNullOrEmpty(_deleteItemErrorMessage))
+        {
+            <AlertMessage Type="danger" Message="@_deleteItemErrorMessage" />
+        }
+    </ModalDialog>
+}
+@code {  [CascadingParameter]
+    private Inventory _deleteItem { get; set; }
+    private GlobalState _globalState { get; set; }
+    private bool _showEditItemDialog { get; set; }
+    private List<Inventory> _items { get; set; }
+    private string _dialogTitle { get; set; }
+    private string _dialogOkLabel { get; set; }
+    private string _editItemErrorMessage { get; set; }
+    private Inventory _itemModel { get; set; }
+    private string _sortBy = "withdrawl";
+    private string _sortDirection = "ascending";
+    private string _deleteItemErrorMessage { get; set; }
+    private bool _showDeleteItemDialog { get; set; }
+       protected override void OnInitialized()
+    {
+        _items = InventoryService.GetAll();
+    }
+
+    private void SortByHandler(string sortByName)
+    {
+        if (_sortBy == sortByName)
+        {
+            _sortDirection = _sortDirection == "ascending" ? "descending" : "ascending";
+        }
+        else
+        {
+            _sortBy = sortByName;
+            _sortDirection = "ascending";
+        }
+    }
+    private void updateDate(ChangeEventArgs e)
+    {
+        _itemModel.LastTaken = DateTime.Parse(e.Value.ToString());
+    }
+
+     private void OpenAddItemDialog()
+    {
+        _dialogTitle = "Add Item";
+        _dialogOkLabel = "Add";
+        _itemModel = new Inventory();
+        _itemModel.Id = Guid.Empty;
+        _showEditItemDialog = true;
+    }
+    private void OpenEditItemDialog(Inventory editItem)
+    {
+        _dialogTitle = "Edit Item";
+        _dialogOkLabel = "Save";
+        _itemModel = editItem;
+        _showEditItemDialog = true;
+    }
+     private void OnEditItemDialogClose(bool isCancel)
+    {
+        if (isCancel)
+        {
+            _showEditItemDialog = false;
+        }
+        else
+        {
+            try
+            {
+                _editItemErrorMessage = "";
+                if (_itemModel.Id == Guid.Empty)
+                {
+                    _items = InventoryService.Create( _itemModel.ItemName, _itemModel.Quantity);
+                }
+                else
+                {
+                    _items = InventoryService.Update(_itemModel.ItemName, _itemModel.Quantity);
+                }
+                _showEditItemDialog = false;
+                
+                }
+            catch (Exception e)
+            {
+                _editItemErrorMessage = e.Message;
+            }
+        }
+    }
+    private void OpenDeleteItemDialog(Inventory deleteItem)
+    {
+        _deleteItem = deleteItem;
+        _showDeleteItemDialog = true;
+    }
+    private void OnDeleteItemDialogClose(bool isCancel)
+    {
+        if (isCancel)
+        {
+
+            _showDeleteItemDialog = false;
+            _deleteItem = null;
+        }
+        else
+        {
+            try
+            {
+                _deleteItemErrorMessage = "";
+                _items = InventoryService.Remove(_deleteItem.ItemName);
+                _showDeleteItemDialog = false;
+                _deleteItem = null;
+            }
+            catch (Exception e)
+            {
+                _deleteItemErrorMessage = e.Message;
+            }
+        }
+    }
+}
+ 
 
 
 

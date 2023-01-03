@@ -55,7 +55,7 @@
                 itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.IsApproved) : itemList.OrderByDescending(t =>
                 t.IsApproved);
             }
-            else if (_sortBy == "itemName")
+            else if (_sortBy == "ItemName")
             {
                 itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.ItemName) : itemList.OrderByDescending(t =>
                 t.ItemName);
@@ -194,34 +194,3 @@
         _items = InventoryService.Delete(_globalState.CurrentUser.Id, item.ItemName, item.TakenQuantity, item.TakenBy);
     }
 }
-
-
-
-            @*
-
-                        if (isCancel)
-        {
-            _showEditTodoDialog = false;
-        }
-        else
-        {
-            try
-            {
-                _editTodoErrorMessage = "";
-                if (_todoModel.Id == Guid.Empty)
-                {
-                    _todos = TodosService.Create(_globalState.CurrentUser.Id, _todoModel.TaskName, _todoModel.DueDate);
-                }
-                else
-                {
-                    _todos = TodosService.Update(_globalState.CurrentUser.Id, _todoModel.Id, _todoModel.TaskName, _todoModel.DueDate,
-                    _todoModel.IsDone);
-                }
-                _showEditTodoDialog = false;
-            }
-            catch (Exception e)
-            {
-                _editTodoErrorMessage = e.Message;
-            }
-        }
-            *@

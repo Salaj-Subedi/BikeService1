@@ -17,6 +17,6 @@ public class Inventory
     public int Quantity { get; set; }
     public Guid ApprovedBy { get; set; }
     public string TakenBy { get; set; }
-    public DateTime LastTaken { get; set; } = DateTime.Now;
+    public DateTime? LastTaken { get; set; } = DateTime.Now;
 }
    

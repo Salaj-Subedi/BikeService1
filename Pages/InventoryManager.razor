@@ -52,13 +52,13 @@
             IEnumerable<Inventory> itemList = _items;
             if (_sortBy == "status")
             {
-                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.IsDone) : itemList.OrderByDescending(t =>
-                t.IsDone);
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.IsApproved) : itemList.OrderByDescending(t =>
+                t.IsApproved);
             }
             else if (_sortBy == "itemName")
             {
-                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.itemName) : itemList.OrderByDescending(t =>
-                t.itemName);
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.ItemName) : itemList.OrderByDescending(t =>
+                t.ItemName);
             }
             else if (_sortBy == "withdrawl")
             {
@@ -129,7 +129,7 @@
 @code {
     [CascadingParameter]
     private GlobalState _globalState { get; set; }
-    private bool _showEditTodoDialog { get; set; }
+    private bool _showEditItemDialog { get; set; }
     
     private List<Inventory> _items { get; set; }
    
@@ -173,14 +173,55 @@
         }
     }
 
-    private void OpenEditTodoDialog(Inventory editItem)
+    private void OpenEditItemDialog(Inventory editItem)
     {
-        _dialogTitle = "Edit Todo";
+        _dialogTitle = "Edit Item";
         _dialogOkLabel = "Save";
-
         _itemModel = editItem;
-
         _showEditItemDialog = true;
     }
-
+    private void OnEditItemDialogClose(bool isCancel)
+    {
+        _showEditItemDialog = false;
+    }
+    private void TabFilter(string status)
+    {
+        _tabFilter = status;
+    }
+    private void ToggleDone(Inventory item)
+    {
+        item.IsApproved = !item.IsApproved;
+        _items = InventoryService.Delete(_globalState.CurrentUser.Id, item.ItemName, item.TakenQuantity, item.TakenBy);
+    }
 }
+
+
+
+            @*
+
+                        if (isCancel)
+        {
+            _showEditTodoDialog = false;
+        }
+        else
+        {
+            try
+            {
+                _editTodoErrorMessage = "";
+                if (_todoModel.Id == Guid.Empty)
+                {
+                    _todos = TodosService.Create(_globalState.CurrentUser.Id, _todoModel.TaskName, _todoModel.DueDate);
+                }
+                else
+                {
+                    _todos = TodosService.Update(_globalState.CurrentUser.Id, _todoModel.Id, _todoModel.TaskName, _todoModel.DueDate,
+                    _todoModel.IsDone);
+                }
+                _showEditTodoDialog = false;
+            }
+            catch (Exception e)
+            {
+                _editTodoErrorMessage = e.Message;
+            }
+        }
+            *@

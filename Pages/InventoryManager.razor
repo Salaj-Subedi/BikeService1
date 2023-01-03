@@ -1,0 +1,186 @@
+﻿@page "/inventorymanager"
+
+<h3>inventorymanager</h3>
+
+<ul class="nav nav-tabs">
+    <li class="nav-item ">
+        <a class='nav-link btn @(_tabFilter == "All" ? "active" : "")' @onclick='()=>TabFilter("All")'>All</a>
+    </li>
+    <li class="nav-item">
+        <a class='nav-link btn @(_tabFilter == "Due" ? "active" : "")' @onclick='()=>TabFilter("Due")'>Pending Approval</a>
+    </li>
+    <li class="nav-item">
+        <a class='nav-link btn @(_tabFilter == "Done" ? "active" : "")' @onclick='()=>TabFilter("Done")'>Approved</a>
+    </li>
+</ul>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <div class="d-flex">
+                    Approval Status
+                    <a class='btn text-@(_sortBy == "status" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
+                        @onclick='()=>SortByHandler("status")'>
+                        <span class='oi oi-sort-@(_sortBy == "status" ? _sortDirection : "ascending")' />
+                    </a>
+                </div>
+            </th>
+            <th>
+                <div class="d-flex">
+                    <input type="search" class="form-control search" placeholder="Search" @oninput="SearchItemName" />
+                    <a class='btn text-@(_sortBy == "ItemName" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
+                       @onclick='()=>SortByHandler("ItemName")'>
+                        <span class='oi oi-sort-@(_sortBy == "ItemName" ? _sortDirection : "ascending")' />
+                    </a>
+                </div>
+            </th>
+            <th>
+                <div class="d-flex">
+                    Withdrawl Quantity
+                    <a class='btn text-@(_sortBy == "withdrawl" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
+                       @onclick='()=>SortByHandler("withdrawl")'>
+                        <span class='oi oi-sort-@(_sortBy == "withdrawl" ? _sortDirection : "ascending")' />
+                    </a>
+                </div>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+        <tbody>
+        @{
+            IEnumerable<Inventory> itemList = _items;
+            if (_sortBy == "status")
+            {
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.IsDone) : itemList.OrderByDescending(t =>
+                t.IsDone);
+            }
+            else if (_sortBy == "itemName")
+            {
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.itemName) : itemList.OrderByDescending(t =>
+                t.itemName);
+            }
+            else if (_sortBy == "withdrawl")
+            {
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.TakenQuantity) : itemList.OrderByDescending(t =>
+                t.TakenQuantity);
+            }
+                if (_tabFilter == "Due")
+            {
+                itemList = itemList.Where(t => !t.IsApproved);
+            }
+            else if (_tabFilter == "Done")
+            {
+                itemList = itemList.Where(t => t.IsApproved);
+            }
+
+            foreach (var Inventory in itemList)
+            {
+               <tr>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input me-0" type="checkbox" checked="@Inventory.IsApproved"
+                            @onchange='()=>ToggleDone(Inventory)' />
+                        </div>
+                    </td>
+                    <td>@Inventory.ItemName</td>
+                    <td>
+                    <p class="small mb-0">
+                        @Inventory.TakenQuantity
+                    </p>
+                </td>
+                <td>
+                    <button disabled="@Inventory.IsApproved" class="btn btn-outline-secondary" type="button"
+                        @onclick="()=>OpenEditItemDialog(Inventory)">
+                        <span class="oi oi-pencil" /> Withdraw Item
+                    </button>
+                </td>
+             </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@if (_showEditItemDialog)
+{
+    <ModalDialog Title="@_dialogTitle" OnClose="@OnEditItemDialogClose" OkLabel="@_dialogOkLabel">
+        <div class="form-floating">
+            <input id="itemName" type="text" class="form-control" @bind="_itemModel.ItemName" placeholder="Item Name" />
+            <label for="itemName">Item Name</label>
+        </div>
+        <div class="form-floating">
+            <input id="takenquantity" type="number" class="form-control" @bind="_itemModel.TakenQuantity" placeholder="TakenQuantity" />
+            <label for="takenquantity">Withdrawl Quantity</label>
+        </div>
+        <div class="form-floating">
+            <input id="takenBy" type="text" class="form-control" @bind="_itemModel.TakenBy" placeholder="Taken By" />
+            <label for="takenBy">Taken By</label>
+        </div>
+
+
+        @if (!string.IsNullOrEmpty(_editItemErrorMessage))
+        {
+            <AlertMessage Type="danger" Message="@_editItemErrorMessage" />
+        }
+    </ModalDialog>
+}
+
+
+@code {
+    [CascadingParameter]
+    private GlobalState _globalState { get; set; }
+    private bool _showEditTodoDialog { get; set; }
+    
+    private List<Inventory> _items { get; set; }
+   
+    private string _dialogTitle { get; set; }
+    private string _dialogOkLabel { get; set; }
+    private string _editItemErrorMessage { get; set; }
+    
+    private Inventory _itemModel { get; set; }
+    private string _tabFilter = "All";
+    private string _sortBy = "withdrawl";
+    private string _sortDirection = "ascending";
+
+    protected override void OnInitialized()
+    {
+        _items = InventoryService.GetAll();
+    }
+
+    private void SortByHandler(string sortByName)
+    {
+        if (_sortBy == sortByName)
+        {
+            _sortDirection = _sortDirection == "ascending" ? "descending" : "ascending";
+        }
+        else
+        {
+            _sortBy = sortByName;
+            _sortDirection = "ascending";
+        }
+    }
+    private void SearchItemName(ChangeEventArgs e)
+    {
+        var searchTerm = e.Value.ToString();
+        if (!string.IsNullOrEmpty(searchTerm) && searchTerm.Length > 2)
+        {
+            _items = InventoryService.GetAll().Where(t =>
+            t.ItemName.ToLower().Contains(searchTerm.ToLower())).ToList();
+        }
+        else
+        {
+            _items = InventoryService.GetAll();
+        }
+    }
+
+    private void OpenEditTodoDialog(Inventory editItem)
+    {
+        _dialogTitle = "Edit Todo";
+        _dialogOkLabel = "Save";
+
+        _itemModel = editItem;
+
+        _showEditItemDialog = true;
+    }
+
+}

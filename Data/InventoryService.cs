@@ -55,7 +55,7 @@ public static class InventoryService
         SaveAll(items);
         return items;
     }
-       public static List<Inventory> Update(Guid id, string ItemName, int quantitytaken, bool isApproved , string TakenBy) //Guid userId,bool isApproved
+       public static List<Inventory> Update(Guid userId, Guid id, string ItemName, int quantitytaken, bool isApproved , string TakenBy) //bool isApproved
     {
         List<Inventory> items = GetAll();
         Inventory itemToUpdate = items.FirstOrDefault(x => x.Id == id);

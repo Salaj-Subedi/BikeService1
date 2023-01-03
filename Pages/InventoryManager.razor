@@ -191,6 +191,6 @@
     private void ToggleDone(Inventory item)
     {
         item.IsApproved = !item.IsApproved;
-        _items = InventoryService.Delete(_globalState.CurrentUser.Id, item.ItemName, item.TakenQuantity, item.TakenBy, item.IsApproved);
+        _items = InventoryService.Delete(_globalState.CurrentUser.Username, item.ItemName, item.TakenQuantity, item.TakenBy, item.IsApproved);
     }
 }

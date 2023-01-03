@@ -15,7 +15,7 @@ public class Inventory
     [Required(ErrorMessage = "Please provide the Quantity")]
     public int TakenQuantity { get; set; }
     public int Quantity { get; set; }
-    public Guid ApprovedBy { get; set; }
+    public string ApprovedBy { get; set; }
     public string TakenBy { get; set; }
     public DateTime? LastTaken { get; set; } = DateTime.Now;
 }

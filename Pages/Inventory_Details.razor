@@ -1,14 +1,14 @@
 ﻿@page "/inventorydetails"
 
 <br />
-
+@* displaying add item button *@
 <nav class="navbar navbar-light bg-light justify-content-between">
     <h1 class="navbar-brand mb-0 h1">INVENTORY</h1>
     <button class="btn btn-primary" type="button" @onclick="OpenAddItemDialog">
         <span class="oi oi-plus" /> Add New Item
     </button>
 </nav>
-
+@*creating table head for data*@
 <table class="table">
     <thead>
         <tr>
@@ -42,6 +42,7 @@
             <th></th>
         </tr>
     </thead>
+    @*defining automatic sorting for each attributes*@
     <tbody>
         @{
             IEnumerable<Inventory> itemList = _items;
@@ -60,7 +61,7 @@
                 itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.LastTaken) : itemList.OrderByDescending(t =>
                 t.LastTaken);
             }
-
+            // iterating through the list and displaying inventory data
             foreach (var Inventory in itemList)
             {
                 <tr>
@@ -113,7 +114,8 @@
         }
     </ModalDialog>
 }
-@code {  [CascadingParameter]
+@code { 
+    [CascadingParameter]
     private Inventory _deleteItem { get; set; }
     private GlobalState _globalState { get; set; }
     private bool _showEditItemDialog { get; set; }
@@ -130,7 +132,7 @@
     {
         _items = InventoryService.GetAll();
     }
-
+    // defining code for sorting data
     private void SortByHandler(string sortByName)
     {
         if (_sortBy == sortByName)

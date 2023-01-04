@@ -58,8 +58,4 @@
       </COMReference>
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="ChartJS" Version="22.2.3" />
-    </ItemGroup>
-
 </Project>

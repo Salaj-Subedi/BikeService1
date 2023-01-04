@@ -1,18 +1,6 @@
 ﻿@page "/inventorymanager"
-
 <br />
-
-@*<ul class="nav nav-tabs">
-    <li class="nav-item ">
-        <a class='nav-link btn @(_tabFilter == "All" ? "active" : "")' @onclick='()=>TabFilter("All")'>All</a>
-    </li>
-    <li class="nav-item">
-        <a class='nav-link btn @(_tabFilter == "Due" ? "active" : "")' @onclick='()=>TabFilter("Due")'>Pending Approval</a>
-    </li>
-    <li class="nav-item">
-        <a class='nav-link btn @(_tabFilter == "Done" ? "active" : "")' @onclick='()=>TabFilter("Done")'>Approved</a>
-    </li>
-</ul>*@
+<h4>INVENTORY MANAGEMENT</h4>
 
 <table class="table">
     <thead>
@@ -65,41 +53,38 @@
                 itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.TakenQuantity) : itemList.OrderByDescending(t =>
                 t.TakenQuantity);
             }
-           @*  if (_tabFilter == "Due")
-            {
-                itemList = itemList.Where(t => !t.IsApproved);
-            }
-            else if (_tabFilter == "Done")
-            {
-                itemList = itemList.Where(t => t.IsApproved);
-            }
-            *@
+        
             foreach (var Inventory in itemList)
             {
-               <tr>
-                    <td>
-                        <div class="form-check">
-                            <input class="form-check-input me-0" type="checkbox" checked="@Inventory.IsApproved"
-                            @onchange='()=>ToggleDone(Inventory)' />
-                        </div>
+                   <tr> 
+                   @*integrating time slot method to verify time duration for item withdrawl*@
+                        @if(Timeslot.CanWithdraw()){
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input me-0" type="checkbox" checked="@Inventory.IsApproved"
+                               @onchange='()=>ToggleDone(Inventory)' />
+                            </div>
+                        </td>
+                        }
+                       
+                        <td>@Inventory.ItemName</td>
+                        <td>
+                        <p class="small mb-0">
+                            @Inventory.TakenQuantity
+                        </p>
                     </td>
-                    <td>@Inventory.ItemName</td>
                     <td>
-                    <p class="small mb-0">
-                        @Inventory.TakenQuantity
-                    </p>
-                </td>
-                <td>
-                    <button disabled="@Inventory.IsApproved" class="btn btn-outline-secondary" type="button"
-                        @onclick="()=>OpenEditItemDialog(Inventory)">
-                        <span class="oi oi-pencil" /> Withdraw Item
-                    </button>
-                </td>
-             </tr>
+                        <button disabled="@Inventory.IsApproved" class="btn btn-outline-secondary" type="button"
+                            @onclick="()=>OpenEditItemDialog(Inventory)">
+                            <span class="oi oi-pencil" /> Withdraw Item
+                        </button>
+                    </td>
+                 </tr>
             }
         }
     </tbody>
 </table>
+<p class="text-danger">Note: Item withdrawl check boxes is only between 9am and 5pm on Weekdays(monday-friday) to ensure secure inventory management </p>
 
 @if (_showEditItemDialog)
 {
@@ -130,9 +115,9 @@
     [CascadingParameter]
     private GlobalState _globalState { get; set; }
     private bool _showEditItemDialog { get; set; }
-    
+
     private List<Inventory> _items { get; set; }
-   
+    private TimeSlot Timeslot = new();
     private string _dialogTitle { get; set; }
     private string _dialogOkLabel { get; set; }
     private string _editItemErrorMessage { get; set; }
@@ -172,13 +157,11 @@
     {
         _showEditItemDialog = false;
     }
-    @*private void TabFilter(string status)
-    {
-        _tabFilter = status;
-    }*@
+  // defining action when admin checks the done button 
     private void ToggleDone(Inventory item)
     {
         item.IsApproved = !item.IsApproved;
+
         if(item.TakenQuantity !=0){
             _items = InventoryService.Delete(_globalState.CurrentUser.Username, item.ItemName, item.TakenQuantity, item.TakenBy, item.IsApproved);
         }

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace BikeService.Data;
-
+//inventory class for all inventory attributes
 public class Inventory
 {
     public Guid Id { get; set; } = Guid.NewGuid();

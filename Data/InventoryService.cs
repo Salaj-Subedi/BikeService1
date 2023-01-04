@@ -4,6 +4,7 @@ namespace BikeService.Data;
 
 public static class InventoryService
 {
+    //method to save inventory values 
     private static void SaveAll( List<Inventory> items) 
     {
         string appDataDirectoryPath = Utils.GetAppDirectoryPath();
@@ -17,6 +18,7 @@ public static class InventoryService
         var json = JsonSerializer.Serialize(items);
         File.WriteAllText(itemsFilePath, json);
     }
+    //method to get all inventory 
     public static List<Inventory> GetAll()
     {
         string itemsFilePath = Utils.GetItemsFilePath();
@@ -41,8 +43,10 @@ public static class InventoryService
         SaveAll(items);
         return items;
     }
+
+    //method to withdraw items from the stock 
     public static List<Inventory> Delete(string Username , string ItemName, int quantitytaken, string TakenBy , bool IsApproved)
-    {  // withdraw service
+    {  
         List<Inventory> items = GetAll();
         Inventory itemToRemove = items.FirstOrDefault(x => x.ItemName == ItemName);
         if (itemToRemove == null)
@@ -63,6 +67,8 @@ public static class InventoryService
         SaveAll(items);
         return items;
     }
+
+    //method to update item quantity or name in the stock 
     public static List<Inventory> Update( string ItemName, int Quantity) 
     {
         List<Inventory> items = GetAll();
@@ -76,6 +82,8 @@ public static class InventoryService
         SaveAll(items);
         return items;
     }
+
+    //method to force remove an item from the list of inventories
     public static List<Inventory> Remove(string ItemName)
     {
         List<Inventory> items = GetAll();

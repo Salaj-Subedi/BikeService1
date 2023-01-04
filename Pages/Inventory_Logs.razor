@@ -2,6 +2,124 @@
 
 <h3>Inventory_Logs</h3>
 
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <div class="d-flex">
+                    Items
+                    <a class='btn text-@(_sortBy == "ItemName" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
+                       @onclick='()=>SortByHandler("ItemName")'>
+                        <span class='oi oi-sort-@(_sortBy == "ItemName" ? _sortDirection : "ascending")' />
+                    </a>
+                </div>
+            </th>
+            <th>
+                <div class="d-flex">
+                    Total Withdrawl Quantity
+                    <a class='btn text-@(_sortBy == "withdrawl" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
+                       @onclick='()=>SortByHandler("withdrawl")'>
+                        <span class='oi oi-sort-@(_sortBy == "withdrawl" ? _sortDirection : "ascending")' />
+                    </a>
+                </div>
+            </th>
+            <th>
+                <div class="d-flex">
+                     Last Approved By
+                    <a class='btn text-@(_sortBy == "approved" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
+                       @onclick='()=>SortByHandler("withdrawl")'>
+                        <span class='oi oi-sort-@(_sortBy == "withdrawl" ? _sortDirection : "ascending")' />
+                    </a>
+                </div>
+            </th>
+            <th>
+                <div class="d-flex">
+                    Last Taken By
+                    <a class='btn text-@(_sortBy == "taken" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
+                       @onclick='()=>SortByHandler("withdrawl")'>
+                        <span class='oi oi-sort-@(_sortBy == "withdrawl" ? _sortDirection : "ascending")' />
+                    </a>
+                </div>
+            </th>
+            <th>
+                <div class="d-flex">
+                    Last Taken On
+                    <a class='btn text-@(_sortBy == "lasttaken" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
+                       @onclick='()=>SortByHandler("withdrawl")'>
+                        <span class='oi oi-sort-@(_sortBy == "withdrawl" ? _sortDirection : "ascending")' />
+                    </a>
+                </div>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            IEnumerable<Inventory> itemList = _items;
+            if (_sortBy == "ItemName")
+            {
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.ItemName) : itemList.OrderByDescending(t =>
+                t.ItemName);
+            }
+            else if (_sortBy == "withdrawl")
+            {
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.TakenQuantity) : itemList.OrderByDescending(t =>
+                t.TakenQuantity);
+            }
+            else if (_sortBy == "approved")
+            {
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.ApprovedBy) : itemList.OrderByDescending(t =>
+                t.TakenQuantity);
+            }
+            else if (_sortBy == "taken")
+            {
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.TakenBy) : itemList.OrderByDescending(t =>
+                t.TakenQuantity);
+            }
+            else if (_sortBy == "lasttaken")
+            {
+                itemList = _sortDirection == "ascending" ? itemList.OrderBy(t => t.LastTaken) : itemList.OrderByDescending(t =>
+                t.TakenQuantity);
+            }
+          
+            foreach (var Inventory in itemList)
+            {
+                <tr>
+                    <td>@Inventory.ItemName</td>
+                    <td>
+                        <p class="small mb-0">
+                            @Inventory.TotalTaken
+                        </p>
+                    </td>
+                    <td>@Inventory.ApprovedBy</td>
+                    <td>@Inventory.TakenBy</td>
+                    <td>@Inventory.LastTaken</td>
+                   
+                </tr>
+            }
+        }
+    </tbody>
+</table>
 @code {
+    
+    private string _sortBy = "";
+    private string _sortDirection = "ascending";
+    private List<Inventory> _items { get; set; }
+    protected override void OnInitialized()
+    {
+        _items = InventoryService.GetAll();
+    }
 
+    private void SortByHandler(string sortByName)
+    {
+        if (_sortBy == sortByName)
+        {
+            _sortDirection = _sortDirection == "ascending" ? "descending" : "ascending";
+        }
+        else
+        {
+            _sortBy = sortByName;
+            _sortDirection = "ascending";
+        }
+    }
 }

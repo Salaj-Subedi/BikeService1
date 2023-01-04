@@ -28,7 +28,7 @@
             </th>
             <th>
                 <div class="d-flex">
-                    <input type="search" class="form-control search" placeholder="Search" @oninput="SearchItemName" />
+                   Items
                     <a class='btn text-@(_sortBy == "ItemName" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
                        @onclick='()=>SortByHandler("ItemName")'>
                         <span class='oi oi-sort-@(_sortBy == "ItemName" ? _sortDirection : "ascending")' />
@@ -37,7 +37,7 @@
             </th>
             <th>
                 <div class="d-flex">
-                    Withdrawl Quantity
+                    Last Withdrawl Quantity
                     <a class='btn text-@(_sortBy == "withdrawl" ? "primary" : "secondary")' data-mdb-toggle="tooltip"
                        @onclick='()=>SortByHandler("withdrawl")'>
                         <span class='oi oi-sort-@(_sortBy == "withdrawl" ? _sortDirection : "ascending")' />
@@ -109,8 +109,8 @@
             <label for="itemName">Item Name</label>
         </div>
         <div class="form-floating">
-            <input id="takenquantity" type="number" class="form-control" @bind="_itemModel.TakenQuantity" placeholder="TakenQuantity" />
-            <label for="takenquantity">Withdrawl Quantity</label>
+            <input id="takenquantity" type="number" class="form-control" min="0" max="@_itemModel.Quantity" @bind="_itemModel.TakenQuantity" placeholder="TakenQuantity" />
+            <label for="takenquantity">Withdrawl Quantity(select between 0 and @_itemModel.Quantity)</label>
         </div>
         <div class="form-floating">
             <input id="takenBy" type="text" class="form-control" @bind="_itemModel.TakenBy" placeholder="Taken By" />
@@ -139,7 +139,7 @@
     
     private Inventory _itemModel { get; set; }
     //private string _tabFilter = "All";
-    private string _sortBy = "withdrawl";
+    private string _sortBy = "";
     private string _sortDirection = "ascending";
 
     protected override void OnInitialized()
@@ -159,19 +159,7 @@
             _sortDirection = "ascending";
         }
     }
-    private void SearchItemName(ChangeEventArgs e)
-    {
-        var searchTerm = e.Value.ToString();
-        if (!string.IsNullOrEmpty(searchTerm) && searchTerm.Length > 2)
-        {
-            _items = InventoryService.GetAll().Where(t =>
-            t.ItemName.ToLower().Contains(searchTerm.ToLower())).ToList();
-        }
-        else
-        {
-            _items = InventoryService.GetAll();
-        }
-    }
+
 
     private void OpenEditItemDialog(Inventory editItem)
     {
@@ -191,6 +179,9 @@
     private void ToggleDone(Inventory item)
     {
         item.IsApproved = !item.IsApproved;
-        _items = InventoryService.Delete(_globalState.CurrentUser.Username, item.ItemName, item.TakenQuantity, item.TakenBy, item.IsApproved);
+        if(item.TakenQuantity !=0){
+            _items = InventoryService.Delete(_globalState.CurrentUser.Username, item.ItemName, item.TakenQuantity, item.TakenBy, item.IsApproved);
+        }
+        
     }
 }

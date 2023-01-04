@@ -14,6 +14,7 @@ public class Inventory
 
     [Required(ErrorMessage = "Please provide the Quantity")]
     public int TakenQuantity { get; set; }
+    public int TotalTaken { get; set; } 
     public int Quantity { get; set; }
     public string ApprovedBy { get; set; }
     public string TakenBy { get; set; }

@@ -54,6 +54,7 @@ public static class InventoryService
             throw new Exception("cannot take more than the stock quantity choose a less number");
         }
         itemToRemove.Quantity -= quantitytaken;
+        itemToRemove.TotalTaken += quantitytaken;
         itemToRemove.TakenQuantity = quantitytaken;
         itemToRemove.LastTaken = DateTime.Now;
         itemToRemove.TakenBy = TakenBy;
@@ -64,7 +65,6 @@ public static class InventoryService
     }
     public static List<Inventory> Update( string ItemName, int Quantity) 
     {
-        // taken, bool isApproved , string TakenBy Guid userId, Guid id,bool isApproved
         List<Inventory> items = GetAll();
         Inventory itemToUpdate = items.FirstOrDefault(x => x.ItemName == ItemName);
         if (itemToUpdate == null)
